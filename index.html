@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Uno</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .instructions {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .play-area {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .current-card {
+            width: 120px;
+            height: 180px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 24px;
+            position: relative;
+        }
+        
+        .player-hand {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .card {
+            width: 80px;
+            height: 120px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .symbol {
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .atomic-number {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 12px;
+        }
+        
+        .element-name {
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-align: center;
+            padding: 0 5px;
+        }
+        
+        .card-property {
+            display: block;
+            font-size: 10px;
+            margin: 2px 0;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            width: 100%;
+            text-align: center;
+            background-color: #e8f4f8;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .metal {
+            background-color: #bdc3c7;
+        }
+        
+        .nonmetal {
+            background-color: #badc58;
+        }
+        
+        .metalloid {
+            background-color: #7ed6df;
+        }
+        
+        .noble-gas {
+            background-color: #e056fd;
+        }
+        
+        .alkali-metal {
+            background-color: #ff7979;
+        }
+        
+        .alkaline-earth {
+            background-color: #f9ca24;
+        }
+        
+        .transition-metal {
+            background-color: #c7ecee;
+        }
+        
+        .post-transition {
+            background-color: #686de0;
+            color: white;
+        }
+        
+        .halogen {
+            background-color: #ffbe76;
+        }
+        
+        .property-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .level-display {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .points-display {
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 80%;
+            text-align: center;
+        }
+        
+        #learning-content {
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        @media (max-width: 600px) {
+            .player-hand {
+                gap: 5px;
+            }
+            
+            .card {
+                width: 70px;
+                height: 105px;
+                font-size: 18px;
+            }
+            
+            .current-card {
+                width: 100px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Chemistry Match!</h1>
+    <div class="instructions">
+        <h3>How to Play:</h3>
+        <p>Match elements by their properties! You can play a card if it matches the current card's:</p>
+        <ul>
+            <li>Group (column in periodic table)</li>
+            <li>Period (row in periodic table)</li>
+            <li>Element type (metal, nonmetal, etc.)</li>
+        </ul>
+        <p>Earn points for each match. Draw a card if you can't play. Try to use all your cards!</p>
+    </div>
+    
+    <div class="game-container">
+        <div class="play-area">
+            <div class="level-display">Level: <span id="level">1</span></div>
+            <div class="points-display">Points: <span id="points">0</span></div>
+            <p>Current Card:</p>
+            <div id="current-card" class="current-card">
+                <span class="atomic-number"></span>
+                <span class="symbol"></span>
+                <span class="element-name"></span>
+                <div class="property-indicator"></div>
+            </div>
+            <div class="status" id="status">Match by group, period or element type</div>
+            <div class="controls">
+                <button id="draw-card">Draw Card</button>
+                <button id="start-over">New Game</button>
+            </div>
+        </div>
+        
+        <div class="player-hand" id="player-hand"></div>
+    </div>
+    
+    <div id="learning-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="element-title"></h2>
+            <div id="learning-content"></div>
+            <button id="close-modal">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        // Element data
+        const elements = [
+            { symbol: 'H', name: 'Hydrogen', group: 1, period: 1, type: 'nonmetal' },
+            { symbol: 'He', name: 'Helium', group: 18, period: 1, type: 'noble-gas' },
+            { symbol: 'Li', name: 'Lithium', group: 1, period: 2, type: 'alkali-metal' },
+            { symbol: 'Be', name: 'Beryllium', group: 2, period: 2, type: 'alkaline-earth' },
+            { symbol: 'B', name: 'Boron', group: 13, period: 2, type: 'metalloid' },
+            { symbol: 'C', name: 'Carbon', group: 14, period: 2, type: 'nonmetal' },
+            { symbol: 'N', name: 'Nitrogen', group: 15, period: 2, type: 'nonmetal' },
+            { symbol: 'O', name: 'Oxygen', group: 16, period: 2, type: 'nonmetal' },
+            { symbol: 'F', name: 'Fluorine', group: 17, period: 2, type: 'halogen' },
+            { symbol: 'Ne', name: 'Neon', group: 18, period: 2, type: 'noble-gas' },
+            { symbol: 'Na', name: 'Sodium', group: 1, period: 3, type: 'alkali-metal' },
+            { symbol: 'Mg', name: 'Magnesium', group: 2, period: 3, type: 'alkaline-earth' },
+            { symbol: 'Al', name: 'Aluminum', group: 13, period: 3, type: 'post-transition' },
+            { symbol: 'Si', name: 'Silicon', group: 14, period: 3, type: 'metalloid' },
+            { symbol: 'P', name: 'Phosphorus', group: 15, period: 3, type: 'nonmetal' },
+            { symbol: 'S', name: 'Sulfur', group: 16, period: 3, type: 'nonmetal' },
+            { symbol: 'Cl', name: 'Chlorine', group: 17, period: 3, type: 'halogen' },
+            { symbol: 'Ar', name: 'Argon', group: 18, period: 3, type: 'noble-gas' },
+            { symbol: 'K', name: 'Potassium', group: 1, period: 4, type: 'alkali-metal' },
+            { symbol: 'Ca', name: 'Calcium', group: 2, period: 4, type: 'alkaline-earth' },
+            { symbol: 'Fe', name: 'Iron', group: 8, period: 4, type: 'transition-metal' },
+            { symbol: 'Cu', name: 'Copper', group: 11, period: 4, type: 'transition-metal' },
+            { symbol: 'Zn', name: 'Zinc', group: 12, period: 4, type: 'transition-metal' },
+            { symbol: 'Br', name: 'Bromine', group: 17, period: 4, type: 'halogen' },
+            { symbol: 'Kr', name: 'Krypton', group: 18, period: 4, type: 'noble-gas' },
+            { symbol: 'Ag', name: 'Silver', group: 11, period: 5, type: 'transition-metal' },
+            { symbol: 'I', name: 'Iodine', group: 17, period: 5, type: 'halogen' },
+            { symbol: 'Xe', name: 'Xenon', group: 18, period: 5, type: 'noble-gas' },
+            { symbol: 'Au', name: 'Gold', group: 11, period: 6, type: 'transition-metal' },
+            { symbol: 'Hg', name: 'Mercury', group: 12, period: 6, type: 'transition-metal' },
+            { symbol: 'Pb', name: 'Lead', group: 14, period: 6, type: 'post-transition' },
+            { symbol: 'Rn', name: 'Radon', group: 18, period: 6, type: 'noble-gas' }
+        ];
+
+        // Element educational content
+        const elementInfo = {
+            'H': 'Hydrogen is the lightest element and the most abundant chemical substance in the universe. It has one proton and one electron, and can form covalent bonds with many elements.',
+            'He': 'Helium is an inert gas and the second most abundant element in the universe. It has a complete valence shell, making it extremely stable and unreactive.',
+            'Li': 'Lithium is highly reactive and flammable. It\'s the lightest metal and is used in batteries, ceramics, and some medications.',
+            'Be': 'Beryllium is relatively rare in the universe. It\'s used in aerospace components due to its lightweight nature and strength.',
+            'B': 'Boron is a metalloid with properties of both metals and nonmetals. It\'s used in detergents and glass manufacturing.',
+            'C': 'Carbon forms the basis of all known life on Earth. It can form four covalent bonds, enabling it to create complex molecules.',
+            'N': 'Nitrogen makes up about 78% of Earth\'s atmosphere. It\'s crucial for amino acids and nucleic acids in living organisms.',
+            'O': 'Oxygen is essential for most life forms through respiration. It makes up about 21% of Earth\'s atmosphere.',
+            'F': 'Fluorine is the most electronegative element. It\'s highly reactive and is used in toothpaste and refrigerants.',
+            'Ne': 'Neon is a noble gas used in signs because it glows reddish-orange when electricity passes through it.',
+            'Na': 'Sodium is highly reactive with water. It\'s an essential element for nerve function and fluid balance in animals.',
+            'Mg': 'Magnesium is essential for photosynthesis in plants and many biological processes in animals. It\'s also used in lightweight alloys.',
+            'Al': 'Aluminum is the most abundant metal in Earth\'s crust. It\'s lightweight and resistant to corrosion.',
+            'Si': 'Silicon is the second most abundant element in Earth\'s crust. It\'s crucial for electronics and forms the basis of silicate minerals.',
+            'P': 'Phosphorus is essential for DNA, RNA, and ATP in living organisms. It\'s used in fertilizers and matches.',
+            'S': 'Sulfur is used by living organisms to make amino acids. It\'s found in many minerals and is used in fertilizers.',
+            'Cl': 'Chlorine is used as a disinfectant for drinking water and swimming pools. It\'s highly reactive and forms salts with many metals.',
+            'Ar': 'Argon makes up about 1% of Earth\'s atmosphere. It\'s used in light bulbs and welding.',
+            'K': 'Potassium is essential for plant growth and many biological processes in animals. It\'s highly reactive with water.',
+            'Ca': 'Calcium is essential for bones, teeth, and shells. It\'s the 5th most abundant element in Earth\'s crust.',
+            'Fe': 'Iron is the most common element on Earth by mass. It\'s essential for hemoglobin in blood and many industrial applications.',
+            'Cu': 'Copper has high thermal and electrical conductivity. It\'s essential for many enzymes and is used in electrical wiring.',
+            'Zn': 'Zinc is essential for many enzymes and proteins. It\'s used in galvanization to protect iron from corrosion.',
+            'Br': 'Bromine is a reddish-brown liquid at room temperature. It\'s used in flame retardants and photographic film.',
+            'Kr': 'Krypton is used in certain types of lights and as a filling gas in windows for insulation.',
+            'Ag': 'Silver has the highest electrical conductivity of any element. It\'s used in jewelry, photography, and electronics.',
+            'I': 'Iodine is essential for thyroid function. It\'s used as a disinfectant and in photography.',
+            'Xe': 'Xenon is used in flash lamps, lasers, and as an anesthetic in medicine.',
+            'Au': 'Gold is highly valued for its rarity and resistance to corrosion. It\'s used in jewelry, electronics, and monetary systems.',
+            'Hg': 'Mercury is the only metal that\'s liquid at room temperature. It\'s used in thermometers and some electrical switches.',
+            'Pb': 'Lead is dense and resistant to corrosion. It\'s used in batteries and radiation shielding.',
+            'Rn': 'Radon is a radioactive gas formed by the decay of radium. It can accumulate in buildings and is a health concern.'
+        };
+
+        // Game variables
+        let deck = [];
+        let playerHand = [];
+        let currentCard = null;
+        let points = 0;
+        let level = 1;
+        
+        // DOM elements
+        const currentCardElement = document.getElementById('current-card');
+        const playerHandElement = document.getElementById('player-hand');
+        const statusElement = document.getElementById('status');
+        const drawCardButton = document.getElementById('draw-card');
+        const startOverButton = document.getElementById('start-over');
+        const pointsDisplay = document.getElementById('points');
+        const levelDisplay = document.getElementById('level');
+        const modal = document.getElementById('learning-modal');
+        const elementTitle = document.getElementById('element-title');
+        const learningContent = document.getElementById('learning-content');
+        const closeModalButton = document.getElementById('close-modal');
+        
+        // Initialize the game
+        function initGame() {
+            // Reset variables
+            deck = [...elements];
+            shuffleDeck();
+            playerHand = [];
+            points = 0;
+            level = 1;
+            
+            // Update displays
+            updatePointsDisplay();
+            updateLevelDisplay();
+            
+            // Deal initial cards
+            dealInitialCards();
+            
+            // Set current card
+            currentCard = drawFromDeck();
+            updateCurrentCardDisplay();
+            
+            // Update status
+            updateStatus("Match by group, period or element type");
+        }
+        
+        // Shuffle the deck using Fisher-Yates algorithm
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+        
+        // Draw a card from the deck
+        function drawFromDeck() {
+            if (deck.length === 0) {
+                // If deck is empty, create a new shuffled deck
+                deck = [...elements];
+                shuffleDeck();
+            }
+            return deck.pop();
+        }
+        
+        // Deal initial cards to player
+        function dealInitialCards() {
+            const startingHandSize = 5;
+            for (let i = 0; i < startingHandSize; i++) {
+                playerHand.push(drawFromDeck());
+            }
+            updatePlayerHandDisplay();
+        }
+        
+        // Update the current card display
+        function updateCurrentCardDisplay() {
+            if (!currentCard) return;
+            
+            currentCardElement.className = `current-card ${currentCard.type}`;
+            currentCardElement.querySelector('.atomic-number').textContent = getAtomicNumber(currentCard.symbol);
+            currentCardElement.querySelector('.symbol').textContent = currentCard.symbol;
+            currentCardElement.querySelector('.element-name').textContent = currentCard.name;
+            
+            const propertyIndicator = currentCardElement.querySelector('.property-indicator');
+            propertyIndicator.textContent = `Group ${currentCard.group}, Period ${currentCard.period}`;
+        }
+        
+        // Update the player's hand display
+        function updatePlayerHandDisplay() {
+            playerHandElement.innerHTML = '';
+            
+            playerHand.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = `card ${card.type}`;
+                cardElement.dataset.index = index;
+                
+                const atomicNumber = document.createElement('span');
+                atomicNumber.className = 'atomic-number';
+                atomicNumber.textContent = getAtomicNumber(card.symbol);
+                
+                const symbol = document.createElement('span');
+                symbol.className = 'symbol';
+                symbol.textContent = card.symbol;
+                
+                const name = document.createElement('span');
+                name.className = 'element-name';
+                name.textContent = card.name;
+                
+                const propertyIndicator = document.createElement('div');
+                propertyIndicator.className = 'property-indicator';
+                propertyIndicator.textContent = `Group ${card.group}, Period ${card.period}`;
+                
+                cardElement.appendChild(atomicNumber);
+                cardElement.appendChild(symbol);
+                cardElement.appendChild(name);
+                cardElement.appendChild(propertyIndicator);
+                
+                cardElement.addEventListener('click', () => playCard(index));
+                
+                // Double click to show element info
+                cardElement.addEventListener('dblclick', () => showElementInfo(card.symbol));
+                
+                playerHandElement.appendChild(cardElement);
+            });
+        }
+        
+        // Get atomic number based on symbol (simplified for this game)
+        function getAtomicNumber(symbol) {
+            return elements.findIndex(el => el.symbol === symbol) + 1;
+        }
+        
+        // Play a card from the player's hand
+        function playCard(index) {
+            const card = playerHand[index];
+            
+            // Check if the card can be played
+            if (canPlayCard(card)) {
+                // Remove the card from player's hand
+                playerHand.splice(index, 1);
+                
+                // Update current card
+                currentCard = card;
+                updateCurrentCardDisplay();
+                
+                // Update player's hand display
+                updatePlayerHandDisplay();
+                
+                // Award points
+                awardPoints(card);
+                
+                // Check if player has won
+                if (playerHand.length === 0) {
+                    levelUp();
+                } else {
+                    updateStatus(`Match successful! Find another match or draw a card.`);
+                }
+            } else {
+                updateStatus(`This card doesn't match! Try another or draw a card.`);
+            }
+        }
+        
+        // Check if a card can be played on the current card
+        function canPlayCard(card) {
+            return (
+                card.group === currentCard.group ||
+                card.period === currentCard.period ||
+                card.type === currentCard.type
+            );
+        }
+        
+        // Award points for playing a card
+        function awardPoints(card) {
+            let earnedPoints = 0;
+            
+            // Points for matching properties
+            if (card.group === currentCard.group) earnedPoints += 5;
+            if (card.period === currentCard.period) earnedPoints += 5;
+            if (card.type === currentCard.type) earnedPoints += 10;
+            
+            // Add level multiplier
+            earnedPoints *= level;
+            
+            points += earnedPoints;
+            updatePointsDisplay();
+            
+            return earnedPoints;
+        }
+        
+        // Update the points display
+        function updatePointsDisplay() {
+            pointsDisplay.textContent = points;
+        }
+        
+        // Update the level display
+        function updateLevelDisplay() {
+            levelDisplay.textContent = level;
+        }
+        
+        // Update the status message
+        function updateStatus(message) {
+            statusElement.textContent = message;
+        }
+        
+        // Level up the game
+        function levelUp() {
+            level++;
+            updateLevelDisplay();
+            updateStatus(`Level ${level} - Great job! You used all your cards!`);
+            
+            // Deal new hand with more cards
+            dealInitialCards();
+            currentCard = drawFromDeck();
+            updateCurrentCardDisplay();
+        }
+        
+        // Draw a card button handler
+        drawCardButton.addEventListener('click', () => {
+            if (deck.length === 0) {
+                updateStatus("Reshuffling deck...");
+                deck = [...elements];
+                shuffleDeck();
+            }
+            
+            const newCard = drawFromDeck();
+            playerHand.push(newCard);
+            updatePlayerHandDisplay();
+            updateStatus("Card drawn. Try to make a match!");
+        });
+        
+        // Start over button handler
+        startOverButton.addEventListener('click', () => {
+            updateStatus("Starting new game...");
+            initGame();
+        });
+        
+        // Show element information modal
+        function showElementInfo(symbol) {
+            const element = elements.find(e => e.symbol === symbol);
+            if (!element) return;
+            
+            elementTitle.textContent = `${element.name} (${element.symbol})`;
+            
+            let content = `
+                <p><strong>Group:</strong> ${element.group}</p>
+                <p><strong>Period:</strong> ${element.period}</p>
+                <p><strong>Type:</strong> ${element.type.replace('-', ' ')}</p>
+                <p><strong>Fun Facts:</strong></p>
+                <p>${elementInfo[element.symbol] || "No additional information available."}</p>
+            `;
+            
+            learningContent.innerHTML = content;
+            modal.style.display = "flex";
+        }
+        
+        // Close modal handler
+        closeModalButton.addEventListener('click', () => {
+            modal.style.display = "none";
+        });
+        
+        // Initialize the game on page load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
